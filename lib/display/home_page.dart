@@ -3,11 +3,13 @@ import 'dart:developer';
 
 import 'package:api_youtube/models/model_class.dart';
 import 'package:api_youtube/services/http_connection.dart';
+import 'package:api_youtube/theme_notifier.dart';
 import 'package:api_youtube/widget/tile_widget.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart';
+import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -21,6 +23,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    var themeNotifier = Provider.of<ThemeNotifier>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -28,6 +31,22 @@ class _HomePageState extends State<HomePage> {
           style: GoogleFonts.radioCanada(
               fontWeight: FontWeight.bold, fontSize: 30),
         ),
+        actions: [
+          Switch(
+            value: themeNotifier.isDarkMode,
+            onChanged: (value) {
+              setState(() {
+                themeNotifier.toggleTheme();
+              });
+            },
+            thumbIcon: WidgetStateProperty.resolveWith((states) {
+              if (states.contains(WidgetState.selected)) {
+                return const Icon(Icons.dark_mode_rounded);
+              }
+              return const Icon(Icons.light_mode);
+            }),
+          )
+        ],
       ),
       body: RefreshIndicator(
         onRefresh: () async {
