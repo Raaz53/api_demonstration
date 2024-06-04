@@ -7,6 +7,8 @@ import 'dart:convert';
 List<Welcome> welcomeFromJson(String str) =>
     List<Welcome>.from(jsonDecode(str).map((x) => Welcome.fromJson(x)));
 
+Welcome welcomeOneFromJson(String str) => Welcome.fromJson(json.decode(str));
+
 // String welcomeToJson(List<Welcome> data) =>
 //     json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
 

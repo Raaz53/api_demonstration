@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:api_youtube/services/http_connection.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -5,7 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../models/model_class.dart';
 
 class SecondPage extends StatefulWidget {
-  SecondPage({super.key, required this.idNum});
+  const SecondPage({super.key, required this.idNum});
   final int idNum;
 
   @override
@@ -13,14 +15,6 @@ class SecondPage extends StatefulWidget {
 }
 
 class _SecondPageState extends State<SecondPage> {
-  late Future<Welcome> fetchData;
-
-  @override
-  void initState() {
-    super.initState();
-    fetchData = HttpConnection().getOne(widget.idNum);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,7 +22,7 @@ class _SecondPageState extends State<SecondPage> {
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: FutureBuilder<Welcome>(
-          future: fetchData,
+          future: HttpConnection().getOne(widget.idNum),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(
@@ -38,7 +32,14 @@ class _SecondPageState extends State<SecondPage> {
               return Center(
                 child: Column(children: [
                   const Text('Failed to load data. Check connection'),
-                  ElevatedButton(onPressed: () {}, child: const Text('Retry'))
+                  ElevatedButton(
+                      onPressed: () {
+                        log('pressed');
+                        setState(() {
+                          HttpConnection().getOne(widget.idNum);
+                        });
+                      },
+                      child: const Text('Retry'))
                 ]),
               );
             } else if (snapshot.hasData) {

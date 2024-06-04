@@ -27,10 +27,6 @@ class _HomePageState extends State<HomePage> {
       body: FutureBuilder<List<Welcome>>(
         future: instance.getData(),
         builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return TileWidget(fetchData: snapshot.data ?? []);
-          }
-
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
               child: CircularProgressIndicator(),
@@ -52,6 +48,8 @@ class _HomePageState extends State<HomePage> {
             return const Center(
               child: Text('No data found'),
             );
+          } else if (snapshot.hasData) {
+            return TileWidget(fetchData: snapshot.data ?? []);
           } else {
             return const SizedBox.shrink();
           }

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:api_youtube/models/model_class.dart';
 import 'package:http/http.dart';
@@ -14,20 +15,28 @@ class HttpConnection {
         return welcomeFromJson(response.body.toString());
       }
       return [];
+    } on SocketException catch (err) {
+      throw Exception('No Internet Connection:${err.message}');
+    } on HttpException catch (err) {
+      throw Exception('HTTP error: ${err.message}');
     } catch (err) {
-      log('ERROR :$err');
-      return [];
+      throw Exception('Unexpected error: $err');
     }
   }
 
   Future<Welcome> getOne(int index) async {
-    final response = await get(Uri.parse('$link/$index'));
-    var data = jsonDecode(response.body.toString());
-    if (response.statusCode == 200) {
-      var data = jsonDecode(response.body);
-      return Welcome.fromJson(data);
-    } else {
-      throw Exception('Failed to load data');
+    try {
+      final response = await get((Uri.parse('$link/$index')));
+      if (response.statusCode == 200) {
+        return welcomeOneFromJson(response.body.toString());
+      }
+      return Welcome(userId: 0, id: 0, title: '', body: '');
+    } on SocketException catch (err) {
+      throw Exception('No Internet Connection:${err.message}');
+    } on HttpException catch (err) {
+      throw Exception('HTTP error: ${err.message}');
+    } catch (err) {
+      throw Exception('Unexpected error: $err');
     }
   }
 }
