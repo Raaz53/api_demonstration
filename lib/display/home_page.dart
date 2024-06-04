@@ -6,6 +6,7 @@ import 'package:api_youtube/services/http_connection.dart';
 import 'package:api_youtube/widget/tile_widget.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart';
 
 class HomePage extends StatefulWidget {
@@ -22,38 +23,62 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Api'),
+        title: Text(
+          'Api',
+          style: GoogleFonts.radioCanada(
+              fontWeight: FontWeight.bold, fontSize: 30),
+        ),
       ),
-      body: FutureBuilder<List<Welcome>>(
-        future: instance.getData(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          } else if (snapshot.hasError) {
-            return Center(
-              child: Column(children: [
-                const Text('Failed to load data. Check connection'),
-                ElevatedButton(
-                    onPressed: () {
+      body: RefreshIndicator(
+        onRefresh: () async {
+          setState(() {
+            instance.getData();
+          });
+        },
+        child: FutureBuilder<List<Welcome>>(
+          future: instance.getData(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            } else if (snapshot.hasError) {
+              return Center(
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: RefreshIndicator(
+                    onRefresh: () async {
                       setState(() {
                         instance.getData();
                       });
                     },
-                    child: const Text('Retry'))
-              ]),
-            );
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(
-              child: Text('No data found'),
-            );
-          } else if (snapshot.hasData) {
-            return TileWidget(fetchData: snapshot.data ?? []);
-          } else {
-            return const SizedBox.shrink();
-          }
-        },
+                    child: SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.8,
+                      child: Column(children: [
+                        const Text('Failed to load data. Check connection'),
+                        ElevatedButton(
+                            onPressed: () {
+                              setState(() {
+                                instance.getData();
+                              });
+                            },
+                            child: const Text('Retry'))
+                      ]),
+                    ),
+                  ),
+                ),
+              );
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return const Center(
+                child: Text('No data found'),
+              );
+            } else if (snapshot.hasData) {
+              return TileWidget(fetchData: snapshot.data ?? []);
+            } else {
+              return const SizedBox.shrink();
+            }
+          },
+        ),
       ),
     );
   }
